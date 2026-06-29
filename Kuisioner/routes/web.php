@@ -29,8 +29,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard')->middleware('role:admin');
     Route::get('/analytics', [DashboardController::class, 'adminAnalytics'])->name('analytics')->middleware('role:admin');
+    Route::get('/analytics/questionnaire/{questionnaire}', [DashboardController::class, 'adminAnalytics'])->name('analytics.questionnaire')->middleware('role:admin');
     Route::get('/export', [DashboardController::class, 'export'])->name('export')->middleware('role:admin');
-
     // Questionnaire Management
     Route::resource('questionnaires', QuestionnaireController::class)->middleware('role:admin');
 

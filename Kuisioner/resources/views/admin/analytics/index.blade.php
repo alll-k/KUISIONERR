@@ -67,6 +67,32 @@
     </div>
 </div>
 
+@if($selectedQuestionnaire)
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Ringkasan Kuesioner: {{ $selectedQuestionnaire->title }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Target Responden:</small>
+                        <span class="badge bg-info">{{ $selectedQuestionnaire->targetRole->name }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Total Jawaban:</small>
+                        <strong>{{ $selectedQuestionnaire->answers->count() }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Total Responden Unik:</small>
+                        <strong>{{ $selectedQuestionnaire->answers->groupBy('user_id')->count() }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
 <div class="row mt-4">
     <div class="col-md-6">
         <div class="card">
@@ -139,9 +165,6 @@
                 <a href="{{ route('admin.export') }}" class="btn btn-primary">
                     <i class="fas fa-file-csv"></i> Export ke CSV
                 </a>
-                <a href="{{ route('admin.export.pdf') }}" class="btn btn-danger">
-                    <i class="fas fa-file-pdf"></i> Export ke PDF
-                </a>
             </div>
         </div>
     </div>
@@ -153,18 +176,20 @@
 <script>
     // Dummy chart - ganti dengan data aktual dari controller
     const ctx = document.getElementById('sdgChart').getContext('2d');
+    const chartData = {
+        labels: {!! json_encode($sdgChartLabels ?: ['SDG 1', 'SDG 2', 'SDG 3', 'SDG 4', 'SDG 5']) !!},
+        datasets: [{
+            label: 'Jumlah Jawaban',
+            data: {!! json_encode($sdgChartData ?: [12, 19, 3, 5, 2]) !!},
+            backgroundColor: 'rgba(102, 126, 234, 0.5)',
+            borderColor: 'rgba(102, 126, 234, 1)',
+            borderWidth: 1
+        }]
+    };
+
     new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels: ['SDG 1', 'SDG 2', 'SDG 3', 'SDG 4', 'SDG 5'],
-            datasets: [{
-                label: 'Jumlah Jawaban',
-                data: [12, 19, 3, 5, 2],
-                backgroundColor: 'rgba(102, 126, 234, 0.5)',
-                borderColor: 'rgba(102, 126, 234, 1)',
-                borderWidth: 1
-            }]
-        },
+        data: chartData,
         options: {
             responsive: true,
             scales: {

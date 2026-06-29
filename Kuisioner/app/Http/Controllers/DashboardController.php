@@ -78,7 +78,7 @@ class DashboardController extends Controller
     /**
      * Show analytics dashboard.
      */
-    public function adminAnalytics()
+    public function adminAnalytics(Questionnaire $questionnaire = null)
     {
         $totalAnswers = UserAnswer::count();
         $uniqueRespondents = UserAnswer::distinct('user_id')->count();
@@ -96,12 +96,44 @@ class DashboardController extends Controller
             ->with('role')
             ->get();
 
+        $selectedQuestionnaire = null;
+        $sdgChartLabels = [];
+        $sdgChartData = [];
+
+        if ($questionnaire) {
+            $questionnaire->load(['questions.sdgGoal', 'answers.question']);
+            $selectedQuestionnaire = $questionnaire;
+
+            $sdgCounts = $questionnaire->answers
+                ->groupBy('question.sdg_goal_id')
+                ->map(function ($group) {
+                    return $group->count();
+                });
+
+            $sdgChartLabels = $questionnaire->questions
+                ->pluck('sdgGoal.title')
+                ->unique()
+                ->values()
+                ->toArray();
+
+            $sdgChartData = $questionnaire->questions
+                ->groupBy('sdgGoal.title')
+                ->map(function ($group) use ($sdgCounts) {
+                    return $sdgCounts->get($group->first()->sdg_goal_id, 0);
+                })
+                ->values()
+                ->toArray();
+        }
+
         return view('admin.analytics.index', compact(
             'totalAnswers',
             'uniqueRespondents',
             'totalQuestionnaires',
             'topQuestionnaires',
-            'topRespondents'
+            'topRespondents',
+            'selectedQuestionnaire',
+            'sdgChartLabels',
+            'sdgChartData'
         ));
     }
 

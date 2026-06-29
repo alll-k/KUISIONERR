@@ -103,8 +103,10 @@
 
     <div class="col-md-4">
         <div class="card mb-3">
-            <div class="card-body">
+            <div class="card-header">
                 <h6 class="card-title">Statistik</h6>
+            </div>
+            <div class="card-body">
                 <div class="mb-2">
                     <small class="text-muted">Total Jawaban:</small>
                     <strong class="d-block">{{ $questionnaire->answers->count() }}</strong>
@@ -115,6 +117,41 @@
                 </div>
             </div>
         </div>
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="card-title">Jawaban Responden</h6>
+            </div>
+            <div class="card-body">
+                @if($questionnaire->answers->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Responden</th>
+                                    <th>Role</th>
+                                    <th>Pertanyaan</th>
+                                    <th>Jawaban</th>
+                                    <th>Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($questionnaire->answers->sortByDesc('answered_at') as $answer)
+                                    <tr>
+                                        <td>{{ $answer->user->name ?? 'Unknown' }}</td>
+                                        <td>{{ $answer->user?->role?->name ?? '-' }}</td>
+                                        <td>{{ Str::limit($answer->question->question_text, 60) }}</td>
+                                        <td>{{ $answer->answer_text }}</td>
+                                        <td>{{ $answer->answered_at?->format('d M Y H:i') ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted mb-0">Belum ada jawaban untuk kuesioner ini.</p>
+                @endif
+            </div>
+        </div>
 
         <div class="card">
             <div class="card-body">
@@ -123,7 +160,7 @@
                     <a href="{{ route('admin.questionnaires.edit', $questionnaire) }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-edit"></i> Edit
                     </a>
-                    <a href="{{ route('admin.analytics', ['questionnaire' => $questionnaire->id]) }}" class="btn btn-info btn-sm">
+                    <a href="{{ route('admin.analytics.questionnaire', $questionnaire) }}" class="btn btn-info btn-sm">
                         <i class="fas fa-chart-bar"></i> Lihat Analytics
                     </a>
                 </div>

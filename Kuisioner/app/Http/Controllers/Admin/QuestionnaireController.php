@@ -51,7 +51,7 @@ class QuestionnaireController extends Controller
      */
     public function show(Questionnaire $questionnaire)
     {
-        $questionnaire->load('questions.sdgGoal');
+        $questionnaire->load(['questions.sdgGoal', 'answers.user', 'answers.question']);
         return view('admin.questionnaires.show', compact('questionnaire'));
     }
 
